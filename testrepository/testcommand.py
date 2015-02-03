@@ -392,7 +392,10 @@ class TestListingFixture(Fixture):
         """
         partitions = [list() for i in range(concurrency)]
         timed_partitions = [[0.0, partition] for partition in partitions]
-        time_data = self.repository.get_test_times(test_ids)
+        # Compile a regex to strip attrs from test_ids:
+        attrs_regexp = re.compile(r'\[.*?\]')
+        raw_test_ids = [attrs_regexp.sub('', x) for x in test_ids]
+        time_data = self.repository.get_test_times(raw_test_ids)
         timed_tests = time_data['known']
         unknown_tests = time_data['unknown']
         # Group tests: generate group_id -> test_ids.

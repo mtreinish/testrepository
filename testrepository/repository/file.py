@@ -257,11 +257,15 @@ class _SafeInserter(object):
         atomicish_rename(self.fname, final_path)
         # May be too slow, but build and iterate.
         db = dbm.open(self._repository._path('times.dbm'), 'c')
+        # Compile a regex to strip attrs from test_ids:
+        attrs_regexp = re.compile(r'\[.*?\]')
         try:
             db_times = {}
             for key, value in self._times.items():
                 if type(key) != str:
                     key = key.encode('utf8')
+                # Strip any attrs from the end of the test_id
+                key = attrs_regexp.sub('', key)
                 db_times[key] = value
             if getattr(db, 'update', None):
                 db.update(db_times)
